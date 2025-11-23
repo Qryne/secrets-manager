@@ -6,14 +6,20 @@ import (
 	"os"
 
 	"github.com/qryne/api/internal/db"
-	"github.com/qryne/api/internal/env"
+	"github.com/qryne/api/utility"
 )
 
 func main() {
+
+	dsn, err := utility.GetString("DB_CONNECTION_STRING")
+	if err != nil {
+		slog.Error("Server failed to start, err: %s", err)
+		os.Exit(1)
+	}
 	cfg := Config{
 		addr: ":8080",
 		db: DBConfig{
-			dsn: env.GetString("DB_CONNECTION_STRING", "postgres://qryne:qryne@localhost:5432/qryne?sslmode=disable"),
+			dsn,
 		},
 	}
 

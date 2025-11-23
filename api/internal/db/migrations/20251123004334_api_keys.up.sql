@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS api_keys(
     public_id VARCHAR(100) UNIQUE NOT NULL,
     scope TEXT[] NOT NULL,
     encryption_iv TEXT UNIQUE NOT NULL,
-    encryted_text TEXT UNIQUE NOT NULL,
+    encrypted_text TEXT UNIQUE NOT NULL,
     algorithm VARCHAR(100) NOT NULL,
     rotations INT UNIQUE NOT NULL DEFAULT 0,
     setup_id UUID NOT NULL REFERENCES setups(id) ON DELETE CASCADE,

@@ -45,7 +45,6 @@ func (repo *AuthRepo) CreateUserByEmail(email string) (AuthUserModel, error) {
 
 	var user AuthUserModel
 
-	row.Next()
 	row.Scan(&user)
 
 	return user, nil

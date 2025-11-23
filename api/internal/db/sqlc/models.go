@@ -16,7 +16,7 @@ type ApiKey struct {
 	PublicID      string             `json:"public_id"`
 	Scope         []string           `json:"scope"`
 	EncryptionIv  string             `json:"encryption_iv"`
-	EncrytedText  string             `json:"encryted_text"`
+	EncryptedText string             `json:"encrypted_text"`
 	Algorithm     string             `json:"algorithm"`
 	Rotations     int32              `json:"rotations"`
 	SetupID       pgtype.UUID        `json:"setup_id"`
@@ -114,6 +114,7 @@ type Workspace struct {
 	ID        pgtype.UUID        `json:"id"`
 	Name      string             `json:"name"`
 	Slug      string             `json:"slug"`
+	SetupID   pgtype.UUID        `json:"setup_id"`
 	IsActive  bool               `json:"is_active"`
 	IsDeleted bool               `json:"is_deleted"`
 	DestroyAt pgtype.Timestamptz `json:"destroy_at"`
