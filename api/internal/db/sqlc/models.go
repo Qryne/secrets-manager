@@ -8,10 +8,84 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type ApiKey struct {
+	ID            pgtype.UUID        `json:"id"`
+	Name          string             `json:"name"`
+	Slug          string             `json:"slug"`
+	Prefix        string             `json:"prefix"`
+	PublicID      string             `json:"public_id"`
+	Scope         []string           `json:"scope"`
+	EncryptionIv  string             `json:"encryption_iv"`
+	EncrytedText  string             `json:"encryted_text"`
+	Algorithm     string             `json:"algorithm"`
+	Rotations     int32              `json:"rotations"`
+	SetupID       pgtype.UUID        `json:"setup_id"`
+	LastRotatedAt pgtype.Timestamptz `json:"last_rotated_at"`
+	CreatedAt     pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
+}
+
+type Project struct {
+	ID          pgtype.UUID        `json:"id"`
+	Name        string             `json:"name"`
+	Slug        string             `json:"slug"`
+	WorkspaceID pgtype.UUID        `json:"workspace_id"`
+	DestroyAt   pgtype.Timestamptz `json:"destroy_at"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+}
+
+type ProjectEnvironment struct {
+	ID        pgtype.UUID        `json:"id"`
+	Name      string             `json:"name"`
+	Slug      string             `json:"slug"`
+	ProjectID pgtype.UUID        `json:"project_id"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
+
+type ProjectMember struct {
+	ID                   pgtype.UUID        `json:"id"`
+	UserID               pgtype.UUID        `json:"user_id"`
+	ProjectEnvironmentID pgtype.UUID        `json:"project_environment_id"`
+	RoleID               pgtype.UUID        `json:"role_id"`
+	CreatedAt            pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt            pgtype.Timestamptz `json:"updated_at"`
+}
+
+type ProjectRole struct {
+	ID          pgtype.UUID        `json:"id"`
+	Name        string             `json:"name"`
+	Slug        string             `json:"slug"`
+	Permissions []byte             `json:"permissions"`
+	ProjectID   pgtype.UUID        `json:"project_id"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+}
+
+type Setup struct {
+	ID              pgtype.UUID        `json:"id"`
+	IsSetupComplete bool               `json:"is_setup_complete"`
+	DestroyAt       pgtype.Timestamptz `json:"destroy_at"`
+	CreatedAt       pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
+}
+
+type SetupOwner struct {
+	ID        pgtype.UUID        `json:"id"`
+	UserID    pgtype.UUID        `json:"user_id"`
+	SetupID   pgtype.UUID        `json:"setup_id"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
+
 type User struct {
 	ID              pgtype.UUID        `json:"id"`
 	Email           string             `json:"email"`
-	IsEmailVerified pgtype.Bool        `json:"is_email_verified"`
+	IsEmailVerified bool               `json:"is_email_verified"`
+	IsSuspended     bool               `json:"is_suspended"`
+	IsInactive      bool               `json:"is_inactive"`
+	IsDeleted       bool               `json:"is_deleted"`
 	CreatedAt       pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
 }
@@ -42,6 +116,7 @@ type Workspace struct {
 	Slug      string             `json:"slug"`
 	IsActive  bool               `json:"is_active"`
 	IsDeleted bool               `json:"is_deleted"`
+	DestroyAt pgtype.Timestamptz `json:"destroy_at"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
 }

@@ -11,7 +11,7 @@ import (
 
 const listUsers = `-- name: ListUsers :many
 SELECT
-  id, email, is_email_verified, created_at, updated_at
+  id, email, is_email_verified, is_suspended, is_inactive, is_deleted, created_at, updated_at
 FROM
   users
 `
@@ -29,6 +29,9 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 			&i.ID,
 			&i.Email,
 			&i.IsEmailVerified,
+			&i.IsSuspended,
+			&i.IsInactive,
+			&i.IsDeleted,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
