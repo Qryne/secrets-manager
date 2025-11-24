@@ -9,11 +9,11 @@ import (
 	db_gen "github.com/qryne/api/internal/db/sqlc"
 )
 
-type AuthRepo struct {
+type APIKeyRepo struct {
 	Db db.IDbHandler
 }
 
-func (repo *AuthRepo) CreateAPIKey(
+func (repo *APIKeyRepo) CreateAPIKey(
 	name, slug, prefix, public_id, encryption_iv, encrypted_text, algorithm, setup_id string, scope []string,
 ) (db_gen.ApiKey, error) {
 

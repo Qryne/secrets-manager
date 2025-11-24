@@ -14,27 +14,27 @@ type APIKeyServices struct {
 	APIKeyRepo IAPIKeyRepository
 }
 
-func (service *APIKeyServices) GenerateAPIKey(name, prefix, setup_id string, scope []string) (*APIKey, error) {
+func (service *APIKeyServices) GenerateAPIKey(name, prefix, setup_id string, scope []string) (APIKey, error) {
 	if len(name) == 0 {
-		return nil, errors.New("API key name cannot be empty")
+		return APIKey{}, errors.New("API key name cannot be empty")
 	}
 
 	slugified_name := slug.Make(name)
 
-	key, err := utility.GetString("SETUP_API_SECRET")
+	key, err := utility.GetENVString("SETUP_API_SECRET")
 
 	if err != nil {
-		return nil, err
+		return APIKey{}, err
 	}
 
 	iv, err := utility.GenerateIV()
 	if err != nil {
-		return nil, err
+		return APIKey{}, err
 	}
 
 	plain_text, err := utility.RandomString(16)
 	if err != nil {
-		return nil, err
+		return APIKey{}, err
 	}
 
 	aes_cbc := lib.AESCBC{}
@@ -45,10 +45,10 @@ func (service *APIKeyServices) GenerateAPIKey(name, prefix, setup_id string, sco
 
 	record, err := service.APIKeyRepo.CreateAPIKey(name, slugified_name, prefix, public_id, string(iv), cipherText, "AES256", setup_id, scope)
 	if err != nil {
-		return nil, err
+		return APIKey{}, err
 	}
 
-	return &APIKey{
+	return APIKey{
 		Name:          record.Name,
 		Slug:          record.Slug,
 		Prefix:        record.Prefix,

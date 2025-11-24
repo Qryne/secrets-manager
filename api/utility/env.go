@@ -5,10 +5,12 @@ import (
 	"os"
 )
 
-func GetString(key string) (string, error) {
-	if val := os.Getenv(key); val != "" {
-		return val, nil
+func GetENVString(key string) (string, error) {
+	val, ok := os.LookupEnv(key)
+
+	if !ok {
+		return "", fmt.Errorf("MISSING ENV KEY: %s", key)
 	}
 
-	return "", fmt.Errorf("MISSING ENV KEY: %s", key)
+	return val, nil
 }

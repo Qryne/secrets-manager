@@ -5,13 +5,14 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/qryne/api/internal/db"
 	"github.com/qryne/api/utility"
 )
 
 func main() {
-
-	dsn, err := utility.GetString("DB_CONNECTION_STRING")
+	godotenv.Load()
+	dsn, err := utility.GetENVString("DB_CONNECTION_STRING")
 	if err != nil {
 		slog.Error("Server failed to start, err: %s", err)
 		os.Exit(1)
