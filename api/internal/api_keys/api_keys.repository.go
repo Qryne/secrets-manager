@@ -27,7 +27,7 @@ func (repo *APIKeyRepo) CreateAPIKey(
 		if err != nil {
 			return err
 		}
-		defer tx.Rollback(ctx) // safe rollback
+		defer tx.Rollback(ctx)
 
 		row, err := tx.Query(ctx, `
             INSERT INTO api_keys (
