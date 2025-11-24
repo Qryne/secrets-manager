@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	apikeys "github.com/qryne/api/internal/api_keys"
+	"github.com/qryne/api/utility/responder"
 )
 
 type APIKeyController struct {
@@ -19,24 +20,24 @@ type CreateAPIKeySchema struct {
 	Scope   []string `json:"scope"`
 }
 
-func (ctrl *APIKeyController) CreateAPIKeyController(res http.ResponseWriter, req *http.Request) {
+func (ctrl *APIKeyController) CreateAPIKeyController(W http.ResponseWriter, R *http.Request) {
 	var raw CreateAPIKeySchema
-	err := json.NewDecoder(req.Body).Decode(&raw)
+	err := json.NewDecoder(R.Body).Decode(&raw)
 
 	if err != nil {
-		http.Error(res, "Invalid request payload", http.StatusBadRequest)
+		resp := responder.NewFailed[any]("Invalid request payload", nil)
+		responder.WriteJSON(W, http.StatusBadRequest, resp)
 		return
 	}
 
 	new_api_key, err := ctrl.APIKeysServices.GenerateAPIKey(raw.Name, raw.Prefix, raw.SetupID, raw.Scope)
-
 	if err != nil {
 		log.Fatal(err)
-		http.Error(res, "Failed to create new API Key", http.StatusUnprocessableEntity)
+		resp := responder.NewFailed[any]("Failed to generate API key", nil)
+		responder.WriteJSON(W, http.StatusUnprocessableEntity, resp)
 		return
 	}
 
-	res.Header().Set("Content-Type", "application/json")
-	res.WriteHeader(http.StatusCreated)
-	json.NewEncoder(res).Encode(new_api_key)
+	resp := responder.NewSuccess("API key generated successfully", &new_api_key)
+	responder.WriteJSON(W, http.StatusCreated, resp)
 }

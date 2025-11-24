@@ -35,8 +35,7 @@ func (repo *APIKeyRepo) CreateAPIKey(
                 encrypted_text, algorithm, setup_id, scope
             )
             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-            RETURNING id, name, slug, prefix, public_id, encryption_iv,
-                      encrypted_text, algorithm, setup_id, scope, created_at
+            RETURNING *;
         `,
 			name, slug, prefix, public_id, encryption_iv,
 			encrypted_text, algorithm, setup_id, scope,
@@ -48,19 +47,7 @@ func (repo *APIKeyRepo) CreateAPIKey(
 
 		var record db_gen.ApiKey
 		if row.Next() {
-			err = row.Scan(
-				&record.ID,
-				&record.Name,
-				&record.Slug,
-				&record.Prefix,
-				&record.PublicID,
-				&record.EncryptionIv,
-				&record.EncryptedText,
-				&record.Algorithm,
-				&record.SetupID,
-				&record.Scope,
-				&record.CreatedAt,
-			)
+			err = row.Scan(&record)
 			if err != nil {
 				return err
 			}

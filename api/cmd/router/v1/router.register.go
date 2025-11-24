@@ -6,6 +6,7 @@ import (
 	apikeys "github.com/qryne/api/internal/api_keys"
 	"github.com/qryne/api/internal/auth"
 	"github.com/qryne/api/internal/db"
+	"github.com/qryne/api/internal/setups"
 )
 
 type V1RouterRegister struct {
@@ -38,15 +39,32 @@ func (reg *V1RouterRegister) injectAPIKeyControllers() APIKeyController {
 	return controllers
 }
 
+func (reg *V1RouterRegister) injectSetupControllers() SetupController {
+	psqlHandler := &db.PSQLHandler{Conn: reg.PGConn}
+
+	setupRepo := setups.SetupRepo{
+		Db: psqlHandler,
+	}
+	setupServices := setups.SetupServices{
+		SetupRepo: &setupRepo,
+	}
+	controllers := SetupController{SetupServices: &setupServices}
+	return controllers
+}
+
 func (reg *V1RouterRegister) RegisterV1Router(r chi.Router) {
 
 	authControllers := reg.injectAuthControllers()
 	apiKeyContollers := reg.injectAPIKeyControllers()
+	setupControlles := reg.injectSetupControllers()
 
 	r.Route("/users", func(r chi.Router) {
 		r.Post("/signup", authControllers.UserSignup)
 	})
 	r.Route("/api-keys", func(r chi.Router) {
 		r.Post("/", apiKeyContollers.CreateAPIKeyController)
+	})
+	r.Route("/setups", func(r chi.Router) {
+		r.Post("/", setupControlles.InitSetupController)
 	})
 }

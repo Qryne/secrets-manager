@@ -2,6 +2,7 @@ package v1_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -10,21 +11,29 @@ import (
 	v1 "github.com/qryne/api/cmd/router/v1"
 	apikeys "github.com/qryne/api/internal/api_keys"
 	"github.com/qryne/api/internal/api_keys/mocks"
+	"github.com/qryne/api/utility/responder"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 const API_KEY_NAME = "Global API Key"
 const API_KEY_SLUG = "global-api-key"
+const PREFIX = "SAT"
 const SETUP_ID = "f33225a7-9d93-4c8b-b545-9403a298e08e"
 
 func TestControllerAPIKeyController(t *testing.T) {
 	apiKeyServices := new(mocks.IAPIKeyServices)
 
-	apiKeyServices.On("GenerateAPIKey", API_KEY_NAME, SETUP_ID, []string{"super_admin", "owner"})
+	expectedResult := apikeys.APIKey{
+		Name:   API_KEY_NAME,
+		Prefix: PREFIX,
+		Scope:  []string{"super_admin", "owner"},
+	}
+	apiKeyServices.On("GenerateAPIKey", API_KEY_NAME, PREFIX, SETUP_ID, mock.AnythingOfType("[]string")).Return(expectedResult, nil)
 
 	controller := v1.APIKeyController{APIKeysServices: apiKeyServices}
 
-	body := strings.NewReader(`{"name": %s, "setup_id": %s, "scope": ["super_admin", "owner"]}`)
+	body := strings.NewReader(fmt.Sprintf(`{"name": "%s", "prefix": "%s", "setup_id": "%s", "scope": ["super_admin", "owner"]}`, API_KEY_NAME, PREFIX, SETUP_ID))
 	req := httptest.NewRequest("POST", "/api/v1/api_keys", body)
 	w := httptest.NewRecorder()
 
@@ -33,13 +42,11 @@ func TestControllerAPIKeyController(t *testing.T) {
 
 	r.ServeHTTP(w, req)
 
-	expectedResult := apikeys.APIKey{}
-	expectedResult.Name = API_KEY_NAME
-	expectedResult.Algorithm = "AES256"
-	expectedResult.Slug = API_KEY_SLUG
+	var result responder.JsonResponse[apikeys.APIKey]
+	_ = json.NewDecoder(w.Body).Decode(&result)
 
-	actualResult := apikeys.APIKey{}
-	json.NewDecoder(w.Body).Decode(&actualResult)
-
-	assert.Equal(t, expectedResult, actualResult)
+	assert.Equal(t, "API key generated successfully", result.Message)
+	assert.Equal(t, responder.StatusSuccess, result.Status)
+	assert.Equal(t, expectedResult.Name, result.Data.Name)
+	assert.Equal(t, expectedResult.Scope, result.Data.Scope)
 }
