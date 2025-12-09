@@ -4,7 +4,6 @@ import (
 	"crypto/aes"
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/gosimple/slug"
 	"github.com/qryne/api/lib"
@@ -48,8 +47,6 @@ func (service *APIKeyServices) GenerateAPIKey(name, prefix, setup_id string, sco
 	if err != nil {
 		return APIKey{}, err
 	}
-
-	log.Fatal(record)
 
 	return APIKey{
 		Name:          record.Name,
