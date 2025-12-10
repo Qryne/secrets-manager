@@ -2,6 +2,7 @@ package apikeys
 
 import (
 	"crypto/aes"
+	"encoding/base64"
 	"errors"
 	"fmt"
 
@@ -43,7 +44,8 @@ func (service *APIKeyServices) GenerateAPIKey(name, prefix, setup_id string, sco
 
 	public_id, err := utility.RandomString(8)
 
-	record, err := service.APIKeyRepo.CreateAPIKey(name, slugified_name, prefix, public_id, string(iv), cipherText, "AES256", setup_id, scope)
+	encodedIVString := base64.StdEncoding.EncodeToString(iv)
+	record, err := service.APIKeyRepo.CreateAPIKey(name, slugified_name, prefix, public_id, encodedIVString, cipherText, "AES256", setup_id, scope)
 	if err != nil {
 		return APIKey{}, err
 	}

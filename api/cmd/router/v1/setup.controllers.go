@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/qryne/api/internal/setups"
@@ -15,6 +16,7 @@ func (controller *SetupController) InitSetupController(W http.ResponseWriter, R 
 
 	err := controller.SetupServices.InitSetup()
 	if err != nil {
+		slog.Error("Setup Error:", err)
 		resp := responder.NewFailed[any]("Failed to initiate setup", nil)
 		responder.WriteJSON(W, http.StatusBadRequest, resp)
 		return

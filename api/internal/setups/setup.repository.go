@@ -2,7 +2,6 @@ package setups
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/afex/hystrix-go/hystrix"
 	"github.com/qryne/api/internal/db"
@@ -28,27 +27,19 @@ func (repo *SetupRepo) CreateEntry() (db_gen.Setup, error) {
 
 		defer tx.Rollback(ctx)
 
-		row, err := tx.Query(ctx, `
-			INSERT INTO setups(is_setup_complete) VALUES(false) RETURNING *;
-		`)
+		row := tx.QueryRow(ctx, `
+			INSERT INTO setups (is_setup_complete) VALUES ($1) RETURNING id, is_setup_complete, destroy_at, created_at, updated_at;
+		`, false)
 
+		var record db_gen.Setup
+		err = row.Scan(&record.ID,
+			&record.IsSetupComplete,
+			&record.DestroyAt,
+			&record.CreatedAt,
+			&record.UpdatedAt)
 		if err != nil {
 			return err
 		}
-
-		defer row.Close()
-
-		var record db_gen.Setup
-		if row.Next() {
-			err := row.Scan(&record)
-			if err != nil {
-				return err
-			}
-		} else {
-			return fmt.Errorf("no row returned")
-
-		}
-
 		if err := tx.Commit(ctx); err != nil {
 			return err
 		}

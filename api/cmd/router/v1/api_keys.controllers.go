@@ -2,7 +2,7 @@ package v1
 
 import (
 	"encoding/json"
-	"log"
+	"log/slog"
 	"net/http"
 
 	apikeys "github.com/qryne/api/internal/api_keys"
@@ -32,7 +32,7 @@ func (ctrl *APIKeyController) CreateAPIKeyController(W http.ResponseWriter, R *h
 
 	new_api_key, err := ctrl.APIKeysServices.GenerateAPIKey(raw.Name, raw.Prefix, raw.SetupID, raw.Scope)
 	if err != nil {
-		log.Fatal(err)
+		slog.Error("Failed to create API key:", err)
 		resp := responder.NewFailed[any]("Failed to generate API key", nil)
 		responder.WriteJSON(W, http.StatusUnprocessableEntity, resp)
 		return
